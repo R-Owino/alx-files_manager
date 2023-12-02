@@ -10,12 +10,15 @@ const app = express();
 const port = process.env.PORT || 5000;
 
 // require routes
-const routes = require('./routes');
+const routes = require('./routes/index');
 
 // use routes
 app.use('/', routes);
+app.use(express.json());
 
 // listen on port
 app.listen(port, () => {
-  console.log(`Listening on port ${port}`);
+  console.log(`Server running on port ${port}`);
 });
+
+module.exports = app;
