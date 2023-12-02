@@ -5,7 +5,6 @@
 
 const redisClient = require('../utils/redis');
 const dbClient = require('../utils/db');
-const e = require('express');
 
 class AppController {
   static getStatus(req, res) {
