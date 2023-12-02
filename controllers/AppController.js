@@ -5,6 +5,7 @@
 
 const redisClient = require('../utils/redis');
 const dbClient = require('../utils/db');
+const e = require('express');
 
 class AppController {
   static getStatus(req, res) {
@@ -20,4 +21,4 @@ class AppController {
   }
 }
 
-module.exports = AppController;
+export default AppController;
