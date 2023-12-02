@@ -3,17 +3,14 @@
     * that loads all routes from routes/index.js
 */
 
-// require express
-const express = require('express');
+import express from 'express';
+import router from './routes/index';
 
 const app = express();
 const port = process.env.PORT || 5000;
 
-// require routes
-const routes = require('./routes/index');
-
-// use routes
-app.use('/', routes);
+// use the router object to manage all routes
+app.use('/', router);
 app.use(express.json());
 
 // listen on port
