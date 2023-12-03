@@ -3,8 +3,8 @@
  * GET /stats should return the number of users and files in DB and a 200 status code
 */
 
-const redisClient = require('../utils/redis');
-const dbClient = require('../utils/db');
+import redisClient from '../utils/redis';
+import dbClient from '../utils/db';
 
 class AppController {
   static getStatus(req, res) {
