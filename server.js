@@ -4,15 +4,18 @@
 */
 
 import express from 'express';
-import routes from './routes';
+import router from './routes/index';
 
 const app = express();
-const PORT = process.env.PORT || 5000;
+const port = process.env.PORT || 5000;
 
-app.use('/', routes);
+// use the router object to manage all routes
+app.use('/', router);
+app.use(express.json());
 
-app.listen(PORT, () => {
-  console.log(`Server is running on port ${PORT}`);
+// listen on port
+app.listen(port, () => {
+  console.log(`Server running on port ${port}`);
 });
 
 export default app;
