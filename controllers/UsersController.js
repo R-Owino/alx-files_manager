@@ -1,53 +1,51 @@
-/* contains the definition of POST /users which creates a user in DB */
+/* contains the definition of POST /users which creates a user in DB
+ * specifies an email and password
+    * password is stored in DB as a SHA1 hash
+ * returns a 201 status code and the newly created user with only email and id
+ * new user must be saved in users collection
+*/
 
-import crypto from 'crypto';
+import sha1 from 'sha1';
 import dbClient from '../utils/db';
+import RedisClient from '../utils/redis';
 
 class UsersController {
   static async postNew(req, res) {
-    // get email and password from the body
+    // get email and password from request body
     const { email, password } = req.body;
 
-    // check if email or password are missing
-    if (!email) return res.status(400).json({ error: 'Missing email' });
-    if (!password) return res.status(400).json({ error: 'Missing password' });
+    // check if email and password are present
+    if (!email) return res.status(400).send({ error: 'Missing email' });
+    if (!password) return res.status(400).send({ error: 'Missing password' });
 
     // check if email already exists
-    const users = await dbClient.db.collection('users');
-    const foundUser = await users.find({ email }).toArray();
-    if (foundUser.length > 0) return res.status(400).json({ error: 'Already exist' });
+    const emailExists = await dbClient.getUser({ email });
+    if (emailExists) return res.status(400).send({ error: 'Already exist' });
 
-    // hash the password
-    const hashedPass = crypto.createHash('SHA1').update(password).digest('hex');
-
-    // insert the user in DB
-    const userCreationObj = await users.insertOne({ email, password: hashedPass });
-    const newUser = { id: userCreationObj.insertedId, email };
-    return res.status(201).json(newUser);
+    // hash password and create user in DB
+    const hashedPassword = sha1(password);
+    const user = await dbClient.createUser({ email, password: hashedPassword });
+    const key = RedisClient.key(`user:${user.id}`);
+    await RedisClient.set(key, user.email, 86400);
+    return res.status(201).send({ id: user.id, email: user.email });
   }
 
   static async getMe(req, res) {
-    // get the token from the header
-    const token = req.headers['x-token'];
+    // get token from request header
+    const token = req.header('X-Token');
 
-    // check if token is missing
-    if (!token) return res.status(401).json({ error: 'Unauthorized' });
+    // check if token is present
+    const key = RedisClient.key(`auth_${token}`);
 
-    // get the user ID from Redis
-    const userId = await dbClient.get(`auth_${token}`);
-
-    // check if user ID exists
-    if (!userId) return res.status(401).json({ error: 'Unauthorized' });
-
-    // get the user from DB
-    const users = await dbClient.db.collection('users');
-    const foundUser = await users.findOne({ _id: ObjectId(userId) });
+    // check if token is valid
+    const userId = await RedisClient.get(key);
 
     // check if user exists
-    if (!foundUser) return res.status(401).json({ error: 'Unauthorized' });
+    const user = await dbClient.getUser({ id: userId });
 
-    // return the user object
-    return res.status(200).json({ id: foundUser._id, email: foundUser.email });
+    // return user info
+    if (!user) return res.status(401).send({ error: 'Unauthorized' });
+    return res.status(200).send({ id: user.id, email: user.email });
   }
 }
 
