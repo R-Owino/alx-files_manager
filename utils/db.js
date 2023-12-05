@@ -7,34 +7,43 @@
 
 import { MongoClient } from 'mongodb';
 
-// constructor that creates a client to MongoDB
+const host = process.env.DB_HOST || 'localhost';
+const port = process.env.DB_PORT || 27017;
+const db = process.env.DB_DATABASE || 'files_manager';
+
+// constructor that creates a client to mongodb
 class DBClient {
   constructor() {
-    const host = process.env.DB_HOST || 'localhost';
-    const port = process.env.DB_PORT || 27017;
-    const database = process.env.DB_DATABASE || 'files_manager';
-    const url = `mongodb://${host}:${port}`;
-    this.client = new MongoClient(url, { useUnifiedTopology: true });
-    this.client.connect((err) => {
-      if (err) console.log(err);
-      else console.log(`Connected to DB ${database}`);
-    });
-    this.db = this.client.db(database);
+    this.conn = false;
+    MongoClient.connect(
+      `mongodb://${host}:${port}/${db}`,
+      { useNewUrlParser: true, useUnifiedTopology: true },
+      (err, client) => {
+        if (!err) {
+          this.db = client.db(db);
+          this.files = this.db.collection('files');
+          this.users = this.db.collection('users');
+          this.conn = true;
+        } else {
+          console.log(err);
+        }
+      },
+    );
   }
 
   // function isAlive that returns True if connection to MongoDB is a success
   isAlive() {
-    return this.client.isConnected();
+    return this.conn;
   }
 
   // async function nbUsers that returns the number of documents in the collection users
   async nbUsers() {
-    return this.db.collection('users').countDocuments();
+    return this.users.countDocuments();
   }
 
   // async function nbFiles that returns the number of documents in the collection files
   async nbFiles() {
-    return this.db.collection('files').countDocuments();
+    return this.files.countDocuments();
   }
 }
 
