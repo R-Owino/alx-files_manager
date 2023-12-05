@@ -13,6 +13,9 @@ class RedisClient {
   constructor() {
     this.client = redis.createClient();
     this.client.on('error', (err) => console.log(`Redis client not connected to the server: ${err.message}`));
+    this.client.on('ready', () => {
+      console.log(this.isAlive());
+    });
   }
 
   isAlive() {
@@ -26,11 +29,13 @@ class RedisClient {
   }
 
   async set(key, value, duration) {
-    this.client.setex(key, duration, value);
+    const setAsync = promisify(this.client.set).bind(this.client);
+    await setAsync(key, value, 'EX', duration);
   }
 
   async del(key) {
-    this.client.del(key);
+    const delAsync = promisify(this.client.del).bind(this.client);
+    await delAsync(key);
   }
 }
 
