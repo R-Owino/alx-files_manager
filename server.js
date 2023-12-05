@@ -9,9 +9,11 @@ import router from './routes/index';
 const app = express();
 const port = process.env.PORT || 5000;
 
+// parse application/json
+app.use(express.json());
+
 // use the router object to manage all routes
 app.use('/', router);
-app.use(express.json());
 
 // listen on port
 app.listen(port, () => {
