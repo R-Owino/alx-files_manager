@@ -13,7 +13,7 @@
     - Change permission of a file
     - View a file
     - Generate thumbnails for images
-- *Note*: There is already such a system in real life, this is just for learning, experience how different parts of such a project are assembled.
+- **Note**: Of course such kinds of services already exist in real life, a popular one being File Explorer by Microsoft. This is just for learning, to experience how different parts of such a service are assembled.
 
 The learning objectives of this project are:
 - how to create an API with Express
