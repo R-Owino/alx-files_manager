@@ -2,7 +2,7 @@
  * - constructor that creates a client to Redis
  * - function isAlive that returns True if connection to Redis is a success
  * - async function get that returns the value of a key
- * - async function set that sets a key to a value
+ * - async function set that sets a key to a value along with an expiration time
  * - async function del that deletes a given value of a key in Redis
  */
 
@@ -18,21 +18,25 @@ class RedisClient {
     });
   }
 
+  // confirms that connection to Redis is a success
   isAlive() {
     return this.client.connected;
   }
 
+  // returns the value of a key
   async get(key) {
     const getAsync = promisify(this.client.get).bind(this.client);
     const value = await getAsync(key);
     return value;
   }
 
+  // sets a key to a value along with an expiration time
   async set(key, value, duration) {
     const setAsync = promisify(this.client.set).bind(this.client);
     await setAsync(key, value, 'EX', duration);
   }
 
+  // deletes a given value of a key in Redis
   async del(key) {
     const delAsync = promisify(this.client.del).bind(this.client);
     await delAsync(key);
