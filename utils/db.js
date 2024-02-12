@@ -11,7 +11,7 @@ const host = process.env.DB_HOST || 'localhost';
 const port = process.env.DB_PORT || 27017;
 const db = process.env.DB_DATABASE || 'files_manager';
 
-// constructor that creates a client to mongodb
+// create a client to mongodb
 class DBClient {
   constructor() {
     this.conn = false;
@@ -31,17 +31,17 @@ class DBClient {
     );
   }
 
-  // function isAlive that returns True if connection to MongoDB is a success
+  // returns True if connection to MongoDB is a success
   isAlive() {
     return this.conn;
   }
 
-  // async function nbUsers that returns the number of documents in the collection users
+  // returns the number of documents in the collection users
   async nbUsers() {
     return this.users.countDocuments();
   }
 
-  // async function nbFiles that returns the number of documents in the collection files
+  // returns the number of documents in the collection files
   async nbFiles() {
     return this.files.countDocuments();
   }
